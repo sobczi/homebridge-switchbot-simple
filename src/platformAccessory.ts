@@ -3,6 +3,9 @@ import type { CharacteristicValue, PlatformAccessory, Service } from 'homebridge
 import type { SwitchBotDeviceConfig, SwitchBotSimplePlatform } from './platform.js';
 import type { SwitchBotClient } from './switchbotApi.js';
 
+export const POWER_CONFIRMATION_DELAY_MS = 3000;
+export const MAX_POWER_CONFIRMATION_ATTEMPTS = 4;
+
 function formatError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -12,6 +15,9 @@ export class SwitchBotPlatformAccessory {
   private isOn = false;
   private readonly poller: NodeJS.Timeout;
   private readonly device: SwitchBotDeviceConfig;
+  private pendingPower?: boolean;
+  private confirmationAttempts = 0;
+  private confirmationTimer?: NodeJS.Timeout;
 
   constructor(
     private readonly platform: SwitchBotSimplePlatform,
@@ -38,7 +44,13 @@ export class SwitchBotPlatformAccessory {
 
   async refreshStatus(): Promise<void> {
     try {
-      this.isOn = await this.client.getStatus(this.device.deviceId);
+      const reportedPower = await this.client.getStatus(this.device.deviceId);
+      if (this.pendingPower !== undefined && reportedPower !== this.pendingPower) {
+        this.platform.log.debug(`${this.device.name}: retaining optimistic power=${this.pendingPower ? 'on' : 'off'} while cloud status catches up`);
+        return;
+      }
+      this.pendingPower = undefined;
+      this.isOn = reportedPower;
       this.service.updateCharacteristic(this.platform.Characteristic.On, this.isOn);
       this.platform.log.debug(`${this.device.name}: refreshed power=${this.isOn ? 'on' : 'off'}`);
     } catch (error) {
@@ -46,16 +58,67 @@ export class SwitchBotPlatformAccessory {
     }
   }
 
-  private async setOn(value: CharacteristicValue): Promise<void> {
+  private setOn(value: CharacteristicValue): void {
     const on = Boolean(value);
+    const previous = this.isOn;
+    this.isOn = on;
+    this.pendingPower = on;
+    this.confirmationAttempts = 0;
+    this.service.updateCharacteristic(this.platform.Characteristic.On, on);
+    void this.sendPowerCommand(on, previous);
+  }
+
+  private async sendPowerCommand(on: boolean, previous: boolean): Promise<void> {
     try {
       await this.client.setPower(this.device.deviceId, on);
-      this.isOn = on;
-      this.service.updateCharacteristic(this.platform.Characteristic.On, on);
-      await this.refreshStatus();
+      this.schedulePowerConfirmation();
     } catch (error) {
+      this.pendingPower = undefined;
+      this.isOn = previous;
+      this.service.updateCharacteristic(this.platform.Characteristic.On, previous);
       this.platform.log.error(`${this.device.name}: unable to set SwitchBot power: ${formatError(error)}`);
-      throw error;
+    }
+  }
+
+  private schedulePowerConfirmation(): void {
+    if (this.confirmationTimer) {
+      clearTimeout(this.confirmationTimer);
+    }
+    this.confirmationTimer = setTimeout(() => void this.confirmPower(), POWER_CONFIRMATION_DELAY_MS);
+    this.confirmationTimer.unref();
+  }
+
+  private async confirmPower(): Promise<void> {
+    this.confirmationTimer = undefined;
+    if (this.pendingPower === undefined) {
+      return;
+    }
+
+    try {
+      const reportedPower = await this.client.getStatus(this.device.deviceId);
+      if (reportedPower === this.pendingPower) {
+        this.isOn = reportedPower;
+        this.pendingPower = undefined;
+        this.service.updateCharacteristic(this.platform.Characteristic.On, this.isOn);
+        return;
+      }
+      this.confirmationAttempts += 1;
+      if (this.confirmationAttempts < MAX_POWER_CONFIRMATION_ATTEMPTS) {
+        this.schedulePowerConfirmation();
+        return;
+      }
+      this.pendingPower = undefined;
+      this.isOn = reportedPower;
+      this.service.updateCharacteristic(this.platform.Characteristic.On, this.isOn);
+      this.platform.log.warn(`${this.device.name}: cloud status did not confirm the requested power state`);
+    } catch (error) {
+      this.confirmationAttempts += 1;
+      if (this.confirmationAttempts < MAX_POWER_CONFIRMATION_ATTEMPTS) {
+        this.schedulePowerConfirmation();
+      } else {
+        this.pendingPower = undefined;
+        this.platform.log.warn(`${this.device.name}: unable to confirm requested power state: ${formatError(error)}`);
+      }
     }
   }
 

@@ -2,7 +2,7 @@
   "name": "homebridge-switchbot-simple",
   "displayName": "SwitchBot Simple",
   "type": "module",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "A small Homebridge dynamic platform for SwitchBot OpenAPI switches.",
   "author": "",

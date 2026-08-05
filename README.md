@@ -41,7 +41,7 @@ The plugin accepts literal credentials in Homebridge UI, or an environment place
 }
 ```
 
-`refreshInterval` is in seconds and is clamped to a minimum of 10 seconds. A failed status refresh is logged and does not stop the child bridge. A failed HomeKit command is reported to HomeKit and does not terminate the process. Curtain 3 maps the OpenAPI position (0=open, 100=closed) to HomeKit's inverse position convention and supports target position plus Hold Position (pause). While the Curtain is moving, it polls every 3 seconds for up to 90 seconds, then returns to the normal interval when it stops.
+`refreshInterval` is in seconds and is clamped to a minimum of 10 seconds. Switch commands update HomeKit optimistically as soon as they are requested, then confirm in the background every 3 seconds (up to four attempts) without blocking the HomeKit interaction. A failed status refresh is logged and does not stop the child bridge. Curtain 3 maps the OpenAPI position (0=open, 100=closed) to HomeKit's inverse position convention and supports target position plus Hold Position (pause). While the Curtain is moving, it polls every 3 seconds for up to 90 seconds, then returns to the normal interval when it stops.
 
 ## Checks
 
