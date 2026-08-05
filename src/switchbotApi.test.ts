@@ -76,6 +76,19 @@ test('reads Curtain 3 status and sends its documented position command', async (
   });
 });
 
+test('reads Hub 2 temperature and humidity', async () => {
+  const client = new SwitchBotApiClient({
+    token: 'token',
+    secret: 'secret',
+    fetch: async () => new Response(JSON.stringify({
+      statusCode: 100,
+      body: { temperature: 26.4, humidity: 50 },
+    }), { status: 200 }),
+  });
+
+  assert.deepEqual(await client.getHub2Status('hub'), { temperature: 26.4, humidity: 50 });
+});
+
 test('rejects unsuccessful API payloads', async () => {
   const client = new SwitchBotApiClient({
     token: 'token',

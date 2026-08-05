@@ -8,6 +8,7 @@ export interface SwitchBotClient {
   getCurtainStatus(deviceId: string): Promise<CurtainStatus>;
   setCurtainPosition(deviceId: string, position: number): Promise<void>;
   pauseCurtain(deviceId: string): Promise<void>;
+  getHub2Status(deviceId: string): Promise<Hub2Status>;
 }
 
 export interface CurtainStatus {
@@ -16,6 +17,11 @@ export interface CurtainStatus {
   calibrate: boolean;
   battery?: number;
   version?: string;
+}
+
+export interface Hub2Status {
+  temperature: number;
+  humidity: number;
 }
 
 interface SwitchBotResponse {
@@ -28,6 +34,8 @@ interface SwitchBotResponse {
     calibrate?: boolean;
     battery?: number;
     version?: string;
+    temperature?: number;
+    humidity?: number;
   };
 }
 
@@ -88,6 +96,16 @@ export class SwitchBotApiClient implements SwitchBotClient {
 
   async pauseCurtain(deviceId: string): Promise<void> {
     await this.sendCommand(deviceId, 'pause');
+  }
+
+  async getHub2Status(deviceId: string): Promise<Hub2Status> {
+    const response = await this.request(`/devices/${encodeURIComponent(deviceId)}/status`);
+    const temperature = response.body?.temperature;
+    const humidity = response.body?.humidity;
+    if (typeof temperature !== 'number' || typeof humidity !== 'number') {
+      throw new Error(`SwitchBot status for ${deviceId} did not include Hub 2 temperature and humidity.`);
+    }
+    return { temperature, humidity };
   }
 
   private async sendCommand(deviceId: string, command: string, parameter = 'default'): Promise<void> {

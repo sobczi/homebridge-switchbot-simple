@@ -1,6 +1,7 @@
 import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 
 import { SwitchBotCurtainAccessory } from './curtainAccessory.js';
+import { SwitchBotHub2Accessory } from './hub2Accessory.js';
 import { SwitchBotPlatformAccessory } from './platformAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
 import { SwitchBotApiClient, type SwitchBotClient } from './switchbotApi.js';
@@ -8,7 +9,7 @@ import { SwitchBotApiClient, type SwitchBotClient } from './switchbotApi.js';
 export interface SwitchBotDeviceConfig {
   name: string;
   deviceId: string;
-  type?: 'switch' | 'curtain3';
+  type?: 'switch' | 'curtain3' | 'hub2';
 }
 
 interface SwitchBotPlatformConfig extends PlatformConfig {
@@ -92,6 +93,8 @@ export class SwitchBotSimplePlatform implements DynamicPlatformPlugin {
   private createAccessory(accessory: PlatformAccessory, device: SwitchBotDeviceConfig): void {
     if (device.type === 'curtain3') {
       new SwitchBotCurtainAccessory(this, accessory, this.client!);
+    } else if (device.type === 'hub2') {
+      new SwitchBotHub2Accessory(this, accessory, this.client!);
     } else {
       new SwitchBotPlatformAccessory(this, accessory, this.client!);
     }
@@ -103,7 +106,7 @@ export class SwitchBotSimplePlatform implements DynamicPlatformPlugin {
       return [];
     }
     return devices.filter((device): device is SwitchBotDeviceConfig => {
-      const validType = device?.type === undefined || device.type === 'switch' || device.type === 'curtain3';
+      const validType = device?.type === undefined || device.type === 'switch' || device.type === 'curtain3' || device.type === 'hub2';
       const valid = validType && typeof device?.name === 'string' && device.name.length > 0
         && typeof device.deviceId === 'string' && device.deviceId.length > 0;
       if (!valid) {

@@ -42,8 +42,8 @@
               "title": "Device type",
               "type": "string",
               "default": "switch",
-              "enum": ["switch", "curtain3"],
-              "enumNames": ["SwitchBot Bot switch", "SwitchBot Curtain 3"]
+              "enum": ["switch", "curtain3", "hub2"],
+              "enumNames": ["SwitchBot Bot switch", "SwitchBot Curtain 3", "SwitchBot Hub 2 sensors"]
             },
             "name": {
               "title": "Name",

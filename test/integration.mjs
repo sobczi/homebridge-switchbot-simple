@@ -28,6 +28,16 @@ test('reads the configured Curtain 3 status', {
   assert.equal(typeof status.moving, 'boolean');
 });
 
+const hub2Id = process.env.SWITCHBOT_HUB2_ID;
+test('reads the configured Hub 2 sensors', {
+  skip: !(token && secret && hub2Id) && 'Set SWITCHBOT_TOKEN, SWITCHBOT_SECRET, and SWITCHBOT_HUB2_ID to run.',
+}, async () => {
+  const client = new SwitchBotApiClient({ token, secret });
+  const status = await client.getHub2Status(hub2Id);
+  assert.equal(typeof status.temperature, 'number');
+  assert.equal(typeof status.humidity, 'number');
+});
+
 const controlDeviceId = process.env.SWITCHBOT_CONTROL_DEVICE_ID;
 const controlTarget = process.env.SWITCHBOT_CONTROL_TARGET;
 const canControl = process.env.ALLOW_DEVICE_CONTROL === '1'

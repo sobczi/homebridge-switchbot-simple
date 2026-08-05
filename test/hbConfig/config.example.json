@@ -27,6 +27,11 @@
           "type": "curtain3",
           "name": "Curtain 3 TEST",
           "deviceId": "C12345678903"
+        },
+        {
+          "type": "hub2",
+          "name": "Hub 2 TEST",
+          "deviceId": "C12345678904"
         }
       ]
     }

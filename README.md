@@ -1,6 +1,6 @@
 # homebridge-switchbot-simple
 
-Small, local-first Homebridge dynamic platform for SwitchBot OpenAPI power controls and Curtain 3. Bots appear as HomeKit switches; Curtain 3 appears as a HomeKit window covering.
+Small, local-first Homebridge dynamic platform for SwitchBot OpenAPI power controls, Curtain 3, and Hub 2 sensors. Bots appear as HomeKit switches; Curtain 3 appears as a HomeKit window covering; Hub 2 exposes temperature and humidity sensors.
 
 ## Local development
 
@@ -36,7 +36,8 @@ The plugin accepts literal credentials in Homebridge UI, or an environment place
   "refreshInterval": 60,
   "devices": [
     { "type": "switch", "name": "Kitchen LED", "deviceId": "C12345678901" },
-    { "type": "curtain3", "name": "Curtain 3", "deviceId": "C12345678903" }
+    { "type": "curtain3", "name": "Curtain 3", "deviceId": "C12345678903" },
+    { "type": "hub2", "name": "Hub 2", "deviceId": "C12345678904" }
   ]
 }
 ```
