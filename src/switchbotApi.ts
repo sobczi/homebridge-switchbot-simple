@@ -5,6 +5,17 @@ const API_BASE_URL = 'https://api.switch-bot.com/v1.1';
 export interface SwitchBotClient {
   getStatus(deviceId: string): Promise<boolean>;
   setPower(deviceId: string, on: boolean): Promise<void>;
+  getCurtainStatus(deviceId: string): Promise<CurtainStatus>;
+  setCurtainPosition(deviceId: string, position: number): Promise<void>;
+  pauseCurtain(deviceId: string): Promise<void>;
+}
+
+export interface CurtainStatus {
+  slidePosition: number;
+  moving: boolean;
+  calibrate: boolean;
+  battery?: number;
+  version?: string;
 }
 
 interface SwitchBotResponse {
@@ -12,6 +23,11 @@ interface SwitchBotResponse {
   message?: string;
   body?: {
     power?: string;
+    slidePosition?: string | number;
+    moving?: boolean;
+    calibrate?: boolean;
+    battery?: number;
+    version?: string;
   };
 }
 
@@ -46,9 +62,38 @@ export class SwitchBotApiClient implements SwitchBotClient {
   }
 
   async setPower(deviceId: string, on: boolean): Promise<void> {
+    await this.sendCommand(deviceId, on ? 'turnOn' : 'turnOff');
+  }
+
+  async getCurtainStatus(deviceId: string): Promise<CurtainStatus> {
+    const response = await this.request(`/devices/${encodeURIComponent(deviceId)}/status`);
+    const slidePosition = Number(response.body?.slidePosition);
+    if (!Number.isFinite(slidePosition) || slidePosition < 0 || slidePosition > 100 || typeof response.body?.moving !== 'boolean') {
+      throw new Error(`SwitchBot status for ${deviceId} did not include a valid Curtain 3 position.`);
+    }
+
+    return {
+      slidePosition,
+      moving: response.body.moving,
+      calibrate: response.body.calibrate === true,
+      battery: response.body.battery,
+      version: response.body.version,
+    };
+  }
+
+  async setCurtainPosition(deviceId: string, position: number): Promise<void> {
+    const boundedPosition = Math.round(Math.max(0, Math.min(100, position)));
+    await this.sendCommand(deviceId, 'setPosition', `0,ff,${boundedPosition}`);
+  }
+
+  async pauseCurtain(deviceId: string): Promise<void> {
+    await this.sendCommand(deviceId, 'pause');
+  }
+
+  private async sendCommand(deviceId: string, command: string, parameter = 'default'): Promise<void> {
     await this.request(`/devices/${encodeURIComponent(deviceId)}/commands`, {
       method: 'POST',
-      body: JSON.stringify({ command: on ? 'turnOn' : 'turnOff', parameter: 'default', commandType: 'command' }),
+      body: JSON.stringify({ command, parameter, commandType: 'command' }),
     });
   }
 

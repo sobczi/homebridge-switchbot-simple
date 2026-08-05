@@ -18,6 +18,16 @@ test('reads configured SwitchBot device states', {
   }
 });
 
+const curtainId = process.env.SWITCHBOT_CURTAIN_ID;
+test('reads the configured Curtain 3 status', {
+  skip: !(token && secret && curtainId) && 'Set SWITCHBOT_TOKEN, SWITCHBOT_SECRET, and SWITCHBOT_CURTAIN_ID to run.',
+}, async () => {
+  const client = new SwitchBotApiClient({ token, secret });
+  const status = await client.getCurtainStatus(curtainId);
+  assert.equal(typeof status.slidePosition, 'number');
+  assert.equal(typeof status.moving, 'boolean');
+});
+
 const controlDeviceId = process.env.SWITCHBOT_CONTROL_DEVICE_ID;
 const controlTarget = process.env.SWITCHBOT_CONTROL_TARGET;
 const canControl = process.env.ALLOW_DEVICE_CONTROL === '1'

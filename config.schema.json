@@ -30,7 +30,7 @@
         "minimum": 10
       },
       "devices": {
-        "title": "Switches",
+        "title": "Devices",
         "type": "array",
         "required": true,
         "items": {
@@ -38,6 +38,13 @@
           "required": ["name", "deviceId"],
           "additionalProperties": false,
           "properties": {
+            "type": {
+              "title": "Device type",
+              "type": "string",
+              "default": "switch",
+              "enum": ["switch", "curtain3"],
+              "enumNames": ["SwitchBot Bot switch", "SwitchBot Curtain 3"]
+            },
             "name": {
               "title": "Name",
               "type": "string",

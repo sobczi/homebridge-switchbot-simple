@@ -1,5 +1,6 @@
 import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 
+import { SwitchBotCurtainAccessory } from './curtainAccessory.js';
 import { SwitchBotPlatformAccessory } from './platformAccessory.js';
 import { PLUGIN_NAME, PLATFORM_NAME } from './settings.js';
 import { SwitchBotApiClient, type SwitchBotClient } from './switchbotApi.js';
@@ -7,6 +8,7 @@ import { SwitchBotApiClient, type SwitchBotClient } from './switchbotApi.js';
 export interface SwitchBotDeviceConfig {
   name: string;
   deviceId: string;
+  type?: 'switch' | 'curtain3';
 }
 
 interface SwitchBotPlatformConfig extends PlatformConfig {
@@ -69,12 +71,12 @@ export class SwitchBotSimplePlatform implements DynamicPlatformPlugin {
       if (cached) {
         cached.context.device = device;
         this.api.updatePlatformAccessories([cached]);
-        new SwitchBotPlatformAccessory(this, cached, this.client);
+        this.createAccessory(cached, device);
       } else {
         this.log.info('Adding accessory:', device.name);
         const accessory = new this.api.platformAccessory(device.name, uuid);
         accessory.context.device = device;
-        new SwitchBotPlatformAccessory(this, accessory, this.client);
+        this.createAccessory(accessory, device);
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
     }
@@ -87,13 +89,22 @@ export class SwitchBotSimplePlatform implements DynamicPlatformPlugin {
     }
   }
 
+  private createAccessory(accessory: PlatformAccessory, device: SwitchBotDeviceConfig): void {
+    if (device.type === 'curtain3') {
+      new SwitchBotCurtainAccessory(this, accessory, this.client!);
+    } else {
+      new SwitchBotPlatformAccessory(this, accessory, this.client!);
+    }
+  }
+
   private validDevices(devices: SwitchBotDeviceConfig[] | undefined): SwitchBotDeviceConfig[] {
     if (!Array.isArray(devices)) {
       this.log.warn('No SwitchBot devices configured.');
       return [];
     }
     return devices.filter((device): device is SwitchBotDeviceConfig => {
-      const valid = typeof device?.name === 'string' && device.name.length > 0
+      const validType = device?.type === undefined || device.type === 'switch' || device.type === 'curtain3';
+      const valid = validType && typeof device?.name === 'string' && device.name.length > 0
         && typeof device.deviceId === 'string' && device.deviceId.length > 0;
       if (!valid) {
         this.log.warn('Ignoring an invalid SwitchBot device configuration.');

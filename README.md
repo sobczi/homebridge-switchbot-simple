@@ -1,6 +1,6 @@
 # homebridge-switchbot-simple
 
-Small, local-first Homebridge dynamic platform for SwitchBot OpenAPI power controls. Each configured device appears as a HomeKit switch.
+Small, local-first Homebridge dynamic platform for SwitchBot OpenAPI power controls and Curtain 3. Bots appear as HomeKit switches; Curtain 3 appears as a HomeKit window covering.
 
 ## Local development
 
@@ -35,12 +35,13 @@ The plugin accepts literal credentials in Homebridge UI, or an environment place
   "secret": "${SWITCHBOT_SECRET}",
   "refreshInterval": 60,
   "devices": [
-    { "name": "Kitchen LED", "deviceId": "C12345678901" }
+    { "type": "switch", "name": "Kitchen LED", "deviceId": "C12345678901" },
+    { "type": "curtain3", "name": "Curtain 3", "deviceId": "C12345678903" }
   ]
 }
 ```
 
-`refreshInterval` is in seconds and is clamped to a minimum of 10 seconds. A failed status refresh is logged and does not stop the child bridge. A failed HomeKit command is reported to HomeKit and does not terminate the process.
+`refreshInterval` is in seconds and is clamped to a minimum of 10 seconds. A failed status refresh is logged and does not stop the child bridge. A failed HomeKit command is reported to HomeKit and does not terminate the process. Curtain 3 maps the OpenAPI position (0=open, 100=closed) to HomeKit's inverse position convention and supports target position plus Hold Position (pause).
 
 ## Checks
 

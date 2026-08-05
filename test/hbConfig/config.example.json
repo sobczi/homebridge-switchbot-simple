@@ -14,12 +14,19 @@
       "refreshInterval": 60,
       "devices": [
         {
+          "type": "switch",
           "name": "Kitchen LED TEST",
           "deviceId": "C12345678901"
         },
         {
+          "type": "switch",
           "name": "Bedroom Lamp TEST",
           "deviceId": "C12345678902"
+        },
+        {
+          "type": "curtain3",
+          "name": "Curtain 3 TEST",
+          "deviceId": "C12345678903"
         }
       ]
     }

@@ -44,6 +44,38 @@ test('setPower sends the corresponding SwitchBot command', async () => {
   assert.deepEqual(await request?.json(), { command: 'turnOff', parameter: 'default', commandType: 'command' });
 });
 
+test('reads Curtain 3 status and sends its documented position command', async () => {
+  const requests: Request[] = [];
+  const client = new SwitchBotApiClient({
+    token: 'token',
+    secret: 'secret',
+    fetch: async (input, init) => {
+      requests.push(new Request(input, init));
+      if (requests.length === 1) {
+        return new Response(JSON.stringify({
+          statusCode: 100,
+          body: { slidePosition: 100, moving: false, calibrate: true, battery: 80, version: 'V1.2' },
+        }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ statusCode: 100 }), { status: 200 });
+    },
+  });
+
+  assert.deepEqual(await client.getCurtainStatus('curtain'), {
+    slidePosition: 100,
+    moving: false,
+    calibrate: true,
+    battery: 80,
+    version: 'V1.2',
+  });
+  await client.setCurtainPosition('curtain', 20);
+  assert.deepEqual(await requests[1].json(), {
+    command: 'setPosition',
+    parameter: '0,ff,20',
+    commandType: 'command',
+  });
+});
+
 test('rejects unsuccessful API payloads', async () => {
   const client = new SwitchBotApiClient({
     token: 'token',
