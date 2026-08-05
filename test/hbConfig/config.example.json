@@ -1,0 +1,27 @@
+{
+  "bridge": {
+    "name": "SwitchBot Simple Test",
+    "username": "0E:01:02:03:04:05",
+    "port": 51826,
+    "pin": "031-45-154"
+  },
+  "platforms": [
+    {
+      "platform": "SwitchBotSimple",
+      "name": "SwitchBot Simple Test",
+      "token": "${SWITCHBOT_TOKEN}",
+      "secret": "${SWITCHBOT_SECRET}",
+      "refreshInterval": 60,
+      "devices": [
+        {
+          "name": "Kitchen LED TEST",
+          "deviceId": "C12345678901"
+        },
+        {
+          "name": "Bedroom Lamp TEST",
+          "deviceId": "C12345678902"
+        }
+      ]
+    }
+  ]
+}

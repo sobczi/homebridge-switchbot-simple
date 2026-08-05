@@ -1,0 +1,56 @@
+{
+  "pluginAlias": "SwitchBotSimple",
+  "pluginType": "platform",
+  "singular": true,
+  "strictValidation": false,
+  "schema": {
+    "type": "object",
+    "required": ["name", "token", "secret", "devices"],
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "SwitchBot Simple"
+      },
+      "token": {
+        "title": "OpenAPI token",
+        "type": "string",
+        "required": true
+      },
+      "secret": {
+        "title": "OpenAPI secret",
+        "type": "string",
+        "required": true
+      },
+      "refreshInterval": {
+        "title": "Refresh interval (seconds)",
+        "type": "integer",
+        "default": 60,
+        "minimum": 10
+      },
+      "devices": {
+        "title": "Switches",
+        "type": "array",
+        "required": true,
+        "items": {
+          "type": "object",
+          "required": ["name", "deviceId"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "required": true
+            },
+            "deviceId": {
+              "title": "Device ID",
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
