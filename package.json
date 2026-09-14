@@ -3,10 +3,17 @@
   "displayName": "SwitchBot Simple",
   "type": "module",
   "version": "0.3.0",
-  "private": true,
-  "description": "A small Homebridge dynamic platform for SwitchBot OpenAPI switches.",
-  "author": "",
+  "description": "A small Homebridge dynamic platform for SwitchBot OpenAPI switches, Curtain 3, and Hub 2 sensors.",
+  "author": "Daniel Sobczak <danielsobczak777@icloud.com>",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/sobczi/homebridge-switchbot-simple#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sobczi/homebridge-switchbot-simple.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sobczi/homebridge-switchbot-simple/issues"
+  },
   "keywords": [
     "homebridge-plugin",
     "supports-hap",

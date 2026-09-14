@@ -1,5 +1,9 @@
 # Ignore source code
 src
+scripts
+.env*
+dist/*.test.*
+dist/*.map
 
 # ------------- Defaults ------------- #
 
