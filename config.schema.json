@@ -2,58 +2,60 @@
   "pluginAlias": "SwitchBotSimple",
   "pluginType": "platform",
   "singular": true,
-  "strictValidation": false,
+  "headerDisplay": "### SwitchBot OpenAPI Setup\n1. Open the **SwitchBot** app on your phone.\n2. Go to **Profile** → **Preferences**.\n3. Tap **App Version** 10 times to unlock **Developer Options**.\n4. Copy your **Token** and **Secret** below.",
   "schema": {
     "type": "object",
     "required": ["name", "token", "secret", "devices"],
-    "additionalProperties": false,
     "properties": {
       "name": {
-        "title": "Name",
+        "title": "Platform Name",
         "type": "string",
         "default": "SwitchBot Simple"
       },
       "token": {
-        "title": "OpenAPI token",
+        "title": "OpenAPI Token",
         "type": "string",
-        "required": true
+        "description": "Your SwitchBot Developer Token (or ${SWITCHBOT_TOKEN} environment variable).",
+        "placeholder": "e.g. 32-character hexadecimal token"
       },
       "secret": {
-        "title": "OpenAPI secret",
+        "title": "OpenAPI Secret",
         "type": "string",
-        "required": true
+        "description": "Your SwitchBot Developer Secret key (or ${SWITCHBOT_SECRET} environment variable).",
+        "placeholder": "e.g. 32-character hexadecimal secret"
       },
       "refreshInterval": {
-        "title": "Refresh interval (seconds)",
+        "title": "Refresh Interval (seconds)",
         "type": "integer",
         "default": 60,
-        "minimum": 10
+        "minimum": 10,
+        "description": "Interval to poll device state. Minimum is 10 seconds (default: 60)."
       },
       "devices": {
         "title": "Devices",
         "type": "array",
-        "required": true,
         "items": {
           "type": "object",
-          "required": ["name", "deviceId"],
-          "additionalProperties": false,
+          "title": "{{value.name || 'New Device'}} ({{value.type || 'device'}})",
+          "required": ["type", "name", "deviceId"],
           "properties": {
             "type": {
-              "title": "Device type",
+              "title": "Device Type",
               "type": "string",
-              "default": "switch",
-              "enum": ["switch", "curtain3", "hub2"],
-              "enumNames": ["SwitchBot Bot switch", "SwitchBot Curtain 3", "SwitchBot Hub 2 sensors"]
+              "default": "curtain3",
+              "enum": ["curtain3", "switch", "hub2"],
+              "enumNames": ["SwitchBot Curtain 3", "SwitchBot Bot switch", "SwitchBot Hub 2 sensors"]
             },
             "name": {
-              "title": "Name",
+              "title": "Display Name",
               "type": "string",
-              "required": true
+              "placeholder": "e.g. Bedroom Curtain"
             },
             "deviceId": {
               "title": "Device ID",
               "type": "string",
-              "required": true
+              "description": "12-character ID from Device Info in SwitchBot App.",
+              "placeholder": "e.g. C123456789AB"
             }
           }
         }

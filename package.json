@@ -2,7 +2,7 @@
   "name": "homebridge-switchbot-curtain-3",
   "displayName": "SwitchBot Simple",
   "type": "module",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A small Homebridge dynamic platform for SwitchBot OpenAPI switches, Curtain 3, and Hub 2 sensors.",
   "author": "Daniel Sobczak <danielsobczak777@icloud.com>",
   "license": "Apache-2.0",
